@@ -1,0 +1,22 @@
+.DailyRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  line-height: 1.3em;
+  padding: 5px 0;
+}
+
+.DailyRow-icon {
+  height: 48px;
+  margin-right: 10px;
+}
+
+.DailyRow-high {
+  color: #fcc;
+  margin-right: 5px;
+}
+
+.DailyRow-low {
+  color: #ccf;
+  margin-right: 5px;
+}

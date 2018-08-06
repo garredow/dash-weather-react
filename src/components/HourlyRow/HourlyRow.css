@@ -1,0 +1,18 @@
+.HourlyRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 3px 0;
+}
+.HourlyRow-icon {
+  height: 32px;
+  margin-right: 10px;
+}
+.HourlyRow-time {
+  margin-right: 10px;
+}
+
+.HourlyRow-temperature {
+  margin-right: 10px;
+  color: white;
+}
