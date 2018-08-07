@@ -13,7 +13,7 @@ body {
   font-weight: 400;
   color: rgba(255, 255, 255, 0.7);
   background-color: #303030;
-  background-image: url('/images/backgrounds/clear-day.jpg');
+  background-image: url('/images/backgrounds/rain.jpg');
   background-attachment: fixed;
   background-size: cover;
   background-position: center;
@@ -29,4 +29,14 @@ h6 {
   margin: 0.5em 0;
   font-weight: 300;
   color: white;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 300ms;
+}
+
+a:hover {
+  color: rgba(255, 255, 255, 1);
 }
