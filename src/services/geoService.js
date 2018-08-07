@@ -4,7 +4,11 @@ import { logger } from './loggerService';
 class GeoService {
   locateUser() {
     if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-      return Promise.resolve({ latitude: 40.1936226, longitude: -75.0890679 });
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({ latitude: 40.1936226, longitude: -75.0890679 });
+        }, 1000);
+      });
     }
 
     return new Promise(resolve => {
