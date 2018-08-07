@@ -1,6 +1,7 @@
 import React from 'react';
 import GeoService from '../../services/geoService';
 import WeatherService from '../../services/weatherService';
+import AlertSection from '../../components/AlertSection/AlertSection';
 import HourlySection from '../../components/HourlySection/HourlySection';
 import DailySection from '../../components/DailySection/DailySection';
 import Summary from '../../components/Summary/Summary';
@@ -70,6 +71,8 @@ class Forecast extends React.Component {
           </div>
           {location && <div className="Forecast-location">{location}</div>}
         </section>
+
+        {this.state.weather && <AlertSection alerts={this.state.weather.alerts} />}
 
         <Summary data={summary} />
 
