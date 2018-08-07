@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { setForecast, setLocation } from '../../actions';
 import GeoService from '../../services/geoService';
 import WeatherService from '../../services/weatherService';
 import AlertSection from '../../components/AlertSection/AlertSection';
@@ -9,24 +11,21 @@ import { logger } from '../../services/loggerService';
 import './Forecast.css';
 
 class Forecast extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      location: null,
-      weather: null,
-    };
-  }
+  state = {};
+
   async componentDidMount() {
     const geoService = new GeoService();
     const weatherService = new WeatherService();
 
+    if (this.props.forecast && this.props.location) return;
+
     try {
       const location = await geoService.getCurrentLocation();
-      const weather = await weatherService.getForecast(location.latitude, location.longitude);
+      this.props.setLocation(location);
 
-      !this.isCancelled && this.setState({ location, weather });
+      const forecast = await weatherService.getForecast(location.latitude, location.longitude);
+      this.props.setForecast(forecast);
     } catch (err) {
-      console.log('logger:', logger);
       logger.log(err);
     }
   }
@@ -39,27 +38,27 @@ class Forecast extends React.Component {
     let now = {};
     let summary;
 
-    if (this.state.weather) {
-      const weather = this.state.weather;
+    if (this.props.forecast) {
+      const forecast = this.props.forecast;
       now = {
-        temperature: parseInt(weather.currently.temperature, 10),
-        high: parseInt(weather.daily.data[0].temperatureMax, 10),
-        low: parseInt(weather.daily.data[0].temperatureMin, 10),
+        temperature: parseInt(forecast.currently.temperature, 10),
+        high: parseInt(forecast.daily.data[0].temperatureMax, 10),
+        low: parseInt(forecast.daily.data[0].temperatureMin, 10),
       };
       summary = {
-        hour: weather.minutely.summary,
-        day: weather.hourly.summary,
-        week: weather.daily.summary,
+        hour: forecast.minutely.summary,
+        day: forecast.hourly.summary,
+        week: forecast.daily.summary,
       };
 
       // TODO: Refactor
-      document.body.style.backgroundImage = `url('images/backgrounds/${weather.currently.icon}.jpg')`;
+      document.body.style.backgroundImage = `url('images/backgrounds/${forecast.currently.icon}.jpg')`;
     }
 
     let location;
-    if (!this.state.location) location = 'Finding your location...';
-    else if (!this.state.weather) location = 'Getting forecast...';
-    else location = this.state.location.name;
+    if (!this.props.location) location = 'Finding your location...';
+    else if (!this.props.forecast) location = 'Getting forecast...';
+    else location = this.props.location.name;
 
     return (
       <div className="Forecast">
@@ -72,16 +71,29 @@ class Forecast extends React.Component {
           {location && <div className="Forecast-location">{location}</div>}
         </section>
 
-        {this.state.weather && <AlertSection alerts={this.state.weather.alerts} />}
+        {this.props.forecast && <AlertSection alerts={this.props.forecast.alerts} />}
 
         <Summary data={summary} />
 
-        {this.state.weather && <HourlySection data={this.state.weather.hourly} />}
+        {this.props.forecast && <HourlySection data={this.props.forecast.hourly} />}
 
-        {this.state.weather && <DailySection data={this.state.weather.daily} />}
+        {this.props.forecast && <DailySection data={this.props.forecast.daily} />}
       </div>
     );
   }
 }
 
-export default Forecast;
+const mapStateToProps = state => ({
+  forecast: state.forecast,
+  location: state.location,
+});
+
+const mapDispatchToProps = dispatch => ({
+  setForecast: forecast => dispatch(setForecast(forecast)),
+  setLocation: location => dispatch(setLocation(location)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Forecast);
