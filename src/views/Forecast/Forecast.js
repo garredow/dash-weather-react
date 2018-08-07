@@ -14,10 +14,10 @@ class Forecast extends React.Component {
   state = {};
 
   async componentDidMount() {
+    if (this.props.forecast && this.props.location) return;
+
     const geoService = new GeoService();
     const weatherService = new WeatherService();
-
-    if (this.props.forecast && this.props.location) return;
 
     try {
       const location = await geoService.getCurrentLocation();
@@ -30,35 +30,43 @@ class Forecast extends React.Component {
     }
   }
 
-  componentWillUnmount() {
-    this.isCancelled = true;
+  getLocationMessage() {
+    if (!this.props.location) return 'Finding your location...';
+    else if (!this.props.forecast) return 'Getting forecast...';
+    else return this.props.location.name;
+  }
+
+  getSummary() {
+    const forecast = this.props.forecast;
+    if (!forecast) return null;
+
+    return {
+      hour: forecast.minutely.summary,
+      day: forecast.hourly.summary,
+      week: forecast.daily.summary,
+    };
+  }
+
+  getNow() {
+    const forecast = this.props.forecast;
+    if (!forecast) return {};
+
+    return {
+      temperature: parseInt(forecast.currently.temperature, 10),
+      high: parseInt(forecast.daily.data[0].temperatureMax, 10),
+      low: parseInt(forecast.daily.data[0].temperatureMin, 10),
+    };
   }
 
   render() {
-    let now = {};
-    let summary;
+    const now = this.getNow();
+    const summary = this.getSummary();
+    const forecast = this.props.forecast;
 
-    if (this.props.forecast) {
-      const forecast = this.props.forecast;
-      now = {
-        temperature: parseInt(forecast.currently.temperature, 10),
-        high: parseInt(forecast.daily.data[0].temperatureMax, 10),
-        low: parseInt(forecast.daily.data[0].temperatureMin, 10),
-      };
-      summary = {
-        hour: forecast.minutely.summary,
-        day: forecast.hourly.summary,
-        week: forecast.daily.summary,
-      };
-
-      // TODO: Refactor
+    // TODO: Refactor
+    if (forecast) {
       document.body.style.backgroundImage = `url('images/backgrounds/${forecast.currently.icon}.jpg')`;
     }
-
-    let location;
-    if (!this.props.location) location = 'Finding your location...';
-    else if (!this.props.forecast) location = 'Getting forecast...';
-    else location = this.props.location.name;
 
     return (
       <div className="Forecast">
@@ -68,16 +76,16 @@ class Forecast extends React.Component {
             <span className="Forecast-high">{now.high || '0'}&deg;</span>
             <span className="Forecast-low">{now.low || '0'}&deg;</span>
           </div>
-          {location && <div className="Forecast-location">{location}</div>}
+          <div className="Forecast-location">{this.getLocationMessage()}</div>
         </section>
 
-        {this.props.forecast && <AlertSection alerts={this.props.forecast.alerts} />}
+        {forecast && <AlertSection alerts={forecast.alerts} />}
 
         <Summary data={summary} />
 
-        {this.props.forecast && <HourlySection data={this.props.forecast.hourly} />}
+        {forecast && <HourlySection data={forecast.hourly} />}
 
-        {this.props.forecast && <DailySection data={this.props.forecast.daily} />}
+        {forecast && <DailySection data={forecast.daily} />}
       </div>
     );
   }
