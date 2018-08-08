@@ -36,4 +36,18 @@ describe('<HourlySection />', () => {
 
     expect(wrapper.find(HourlyRow)).to.have.length(12);
   });
+  it('should display the summary for the day', () => {
+    const data = {
+      summary: 'Summary for the day',
+      data: [],
+    };
+
+    const wrapper = shallow(<HourlySection data={data} />);
+    const summaryText = wrapper
+      .find('p')
+      .first()
+      .text();
+
+    expect(summaryText).to.equal(data.summary);
+  });
 });
